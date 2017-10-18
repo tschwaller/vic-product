@@ -27,7 +27,17 @@ Smoke Test
     Set Environment Variable  PUBLIC_NETWORK  vm-network
     Set Environment Variable  VIC_NAME  VIC-mike2
 
-    Install VIC Product OVA  bin/vic-*.ova
-
+#    Install VIC Product OVA  bin/vic-*.ova
+    Set Environment Variable  VIC_IP  10.160.222.203
     Log  %{VIC_IP}
-    #curl -k --write-out '\n%{http_code}\n' --header "Content-Type: application/json" -X POST --data  '{"target":"10.160.207.246:443","user":"administrator@vsphere.local","password":"Admin!23"}' https://10.160.202.65:9443/register
+    
+    Open Browser  http://%{VIC_IP}
+    Wait Until Page Contains Element  target
+    Wait Until Page Contains Element  user
+    Wait Until Page Contains Element  password
+    Wait Until Page Contains Element  login-submit
+    Input Text  target  %{TEST_URL}
+    Input Text  user  %{TEST_USERNAME}
+    Input Text  password  %{TEST_PASSWORD}
+    Click Button  login-submit
+    Wait Until Page Contains  Getting Started
