@@ -220,7 +220,6 @@ Cleanup Nimbus PXE folder
 
 Nimbus Cleanup
     [Arguments]  ${vm_list}  ${collect_log}=True  ${dontDelete}=${false}
-    Run Keyword If  ${collect_log}  Run Keyword And Continue On Failure  Gather Logs From Test Server
     Run Keyword And Ignore Error  Cleanup Nimbus PXE folder  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
     Return From Keyword If  ${dontDelete}
     ${list}=  Catenate  @{vm_list}

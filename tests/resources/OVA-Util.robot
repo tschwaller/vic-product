@@ -55,6 +55,7 @@ Install VIC Product OVA
     Log To Console  ${rc}
     Log To Console  ${out}
     Should Contain  ${out}  200
+    Set Environment Variable  OVA_IP  ${ova-ip}
 
     [Return]  ${ova-ip}
 
