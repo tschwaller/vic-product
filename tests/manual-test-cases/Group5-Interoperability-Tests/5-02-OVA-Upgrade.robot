@@ -45,7 +45,8 @@ Test
     Set Environment Variable  OVA_NAME  OVA-5-02-TEST
     Set Global Variable  ${OVA_USERNAME_ROOT}  root
     Set Global Variable  ${OVA_PASSWORD_ROOT}  e2eFunctionalTest
-    Install VIC Product OVA  vic-*.ova  %{OVA_NAME}
+    Run  wget https://storage.googleapis.com/vic-product-ova-releases/vic-v1.2.1-4104e5f9.ova
+    Install VIC Product OVA  vic-v1.2.1-4104e5f9.ova  %{OVA_NAME}
     
     Set Global Variable  ${FIREFOX_BROWSER}  firefox
     Set Global Variable  ${GRID_URL}  http://127.0.0.1:4444/wd/hub
