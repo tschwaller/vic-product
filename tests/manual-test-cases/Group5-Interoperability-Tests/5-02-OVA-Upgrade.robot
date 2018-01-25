@@ -28,13 +28,9 @@ OVA Upgrade Setup
     Run Keyword And Ignore Error  Nimbus Cleanup  ${list}  ${false}
     Log To Console  \nStart downloading vic-v1.2.1-4104e5f9.ova...
     ${pid1}=  Start Process  wget -nc https://storage.googleapis.com/vic-product-ova-releases/vic-v1.2.1-4104e5f9.ova  shell=True
-    ${latest-ova}=  Run  gsutil ls -l gs://vic-product-ova-builds/ | grep -v TOTAL | sort -k2 -r
-    ${latest-ova}=  Split To Lines  ${latest-ova}
-    ${latest-ova}=  Split String  @{latest-ova}[0]
-    ${latest-ova}=  Split String  @{latest-ova}[2]  /
-    ${latest-ova}=  Set Variable  @{latest-ova}[3]
+    ${latest-ova}=  Run  gsutil ls -l gs://vic-product-ova-builds/ | grep -v TOTAL | sort -k2r | (head -n1 ; dd of=/dev/null 2>&1 /dev/null) | xargs | cut -d ' ' -f 3 | cut -d '/' -f 4
     Log To Console  \nStart downloading ${latest-ova}...
-    ${pid2}=  Start Process  wget -nc https://storage.googleapis.com/vic-product-ova-releases/${latest-ova}  shell=True
+    ${pid2}=  Start Process  wget -nc https://storage.googleapis.com/vic-product-ova-builds/${latest-ova}  shell=True
     
     ${esx1}  ${esx2}  ${esx3}  ${vc}  ${esx1-ip}  ${esx2-ip}  ${esx3-ip}  ${vc-ip}=  Create a Simple VC Cluster
     Log To Console  Finished Creating Cluster ${vc}
@@ -45,7 +41,7 @@ OVA Upgrade Setup
     Set Environment Variable  TEST_PASSWORD  Admin\!23
     Set Environment Variable  BRIDGE_NETWORK  bridge
     Set Environment Variable  PUBLIC_NETWORK  vm-network
-    Set Environment Variable  TEST_RESOURCE  /cls
+    Set Environment Variable  TEST_RESOURCE  /ha-datacenter/host/cls
     Set Environment Variable  TEST_TIMEOUT  30m
     Set Environment Variable  TEST_DATASTORE  datastore1
 
