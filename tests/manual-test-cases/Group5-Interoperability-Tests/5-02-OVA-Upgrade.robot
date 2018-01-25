@@ -16,11 +16,16 @@
 Documentation  Test 5-02 - OVA Upgrade
 Resource  ../../resources/Util.robot
 Suite Setup  Wait Until Keyword Succeeds  10x  10m  OVA Upgrade Setup
-#Suite Teardown  Run Keyword And Ignore Error  Nimbus Cleanup  ${list}
+Suite Teardown  Close All Browsers
 
 *** Variables ***
 ${esx_number}=  3
 ${datacenter}=  ha-datacenter
+
+${busybox-docker-image-name}  registry.hub.docker.com/library/busybox
+${busybox-docker-image-tag}  latest
+${sample-command-exit}  ls
+${cp-card-status-stopped}  STOPPED
 
 *** Keywords ***
 OVA Upgrade Setup
@@ -48,32 +53,47 @@ OVA Upgrade Setup
     ${ret}=  Wait For Process  ${pid1}
     ${ret}=  Wait For Process  ${pid2}
 
+    Set Browser Variables
+    Open Firefox Browser
+
+Install And Initialize OVA
+    [Arguments]  ${ova-file}  ${ova-name}
+    Log To Console  Installing 1.2.1 ova, enrolling psc, and checking online component status...
+    Install Common OVA If Not Already  ${ova-file}  ${ova-name}
+    # validate complete installation on UI
+    Log To Console  Initializing the OVA using the getting started ui...
+    Log In And Complete OVA Installation
+    # verify all services restarted after ui initialization
+    Log To Console  Checking for online final component status...
+    Wait for Online Components  %{OVA_IP}
+
 *** Test Cases ***
 Test
     Log To Console  \nStarting test...
     Set Environment Variable  OVA_NAME  OVA-5-02-TEST
     Set Global Variable  ${OVA_USERNAME_ROOT}  root
     Set Global Variable  ${OVA_PASSWORD_ROOT}  e2eFunctionalTest
-    Install VIC Product OVA  vic-v1.2.1-4104e5f9.ova  %{OVA_NAME}
+
+
+    Install And Initialize OVA  vic-v1.2.1-4104e5f9.ova  %{OVA_NAME}
     
-    Set Global Variable  ${FIREFOX_BROWSER}  firefox
-    Set Global Variable  ${GRID_URL}  http://127.0.0.1:4444/wd/hub
-    Set Global Variable  ${EXPLICIT_WAIT}  30
-    Set Global Variable  ${EXTRA_EXPLICIT_WAIT}  50
-    Set Global Variable  ${PRIMARY_PORT}  8282
-    Set Global Variable  ${GS_PAGE_PORT}  9443
-    Set Global Variable  ${HARBOR_PORT}  443
-    Set Global Variable  ${IP_URL}  https://%{OVA_IP}
-    Set Global Variable  ${BASE_URL}  ${IP_URL}:${PRIMARY_PORT}
-    Set Global Variable  ${GS_PAGE_BASE_URL}  ${IP_URL}:${GS_PAGE_PORT}
-    Set Global Variable  ${COMPLETE_INSTALL_URL}  ${GS_PAGE_BASE_URL}/?login=true
-    Set Global Variable  ${HARBOR_URL}  ${IP_URL}:${HARBOR_PORT}
-    Set Global Variable  ${DEFAULT_HARBOR_NAME}  default-vic-registry
-    Set Global Variable  ${DEFAULT_HARBOR_PROJECT}  default-project
-    Open Firefox Browser
-    Log In And Complete OVA Installation
-    # TODO: Still need to walkthrough init and creation wizard
+    Download VIC Engine If Not Already
+    ${vch-name}=  Install VCH  certs=${false}
+    Add New Container Host And Verify Card  ${vch-name}
+    Navigate To Containers Page
+    Select Containers Page Iframe
+    Verify Containers Page
+    Provision And Verify New Container  ${busybox-docker-image-name}  ${busybox-docker-image-tag}  ${sample-command-exit}  ${cp-card-status-stopped}
+    Unselect Containers Page Iframe
+
+    # preserve previous ova details
+    Set Global Variable  ${OLD_OVA_IP}  %{OVA_IP}
+    Set Global Variable  ${OLD_OVA_NAME}  %{OVA_NAME}
 
     Set Environment Variable  OVA_NAME  OVA-5-02-TEST-LATEST
-    Install VIC Product OVA  ${latest-ova}  %{OVA_NAME}
+    Install And Initialize OVA  ${latest-ova}  %{OVA_NAME}
+    
+    # upgrade ova
+    # verify existing vch host and container
+
     

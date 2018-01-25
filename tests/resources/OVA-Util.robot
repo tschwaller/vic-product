@@ -55,14 +55,13 @@ Install VIC Product OVA
     Log To Console  ${rc}
     Log To Console  ${out}
     Should Contain  ${out}  200
-    Set Environment Variable  OVA_IP  ${ova-ip}
 
     [Return]  ${ova-ip}
 
 Install Common OVA If Not Already
-    [Arguments]  ${ova-file}
+    [Arguments]  ${ova-file}  ${ova-name}=%{OVA_NAME}
     ${rc}=  Set Test OVA IP If Available
-    ${ova-ip}=  Run Keyword Unless  ${rc} == 0  Install VIC Product OVA  ${ova-file}  %{OVA_NAME}
+    ${ova-ip}=  Run Keyword Unless  ${rc} == 0  Install VIC Product OVA  ${ova-file}  ${ova-name}
     Run Keyword Unless  ${rc} == 0  Set Environment Variable  OVA_IP  ${ova-ip}
 
 Download VIC Engine
