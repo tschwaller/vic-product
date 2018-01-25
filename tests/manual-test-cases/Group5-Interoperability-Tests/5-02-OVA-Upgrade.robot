@@ -65,3 +65,9 @@ Test
     Open Firefox Browser
     Log In And Complete OVA Installation
     # TODO: Still need to walkthrough init and creation wizard
+    
+    ${latest-ova}=  Run  gsutil ls -l gs://vic-product-ova-builds/ | grep -v TOTAL | sort -k2 -r | head -n1 | xargs | cut -d ' ' -f 3 | cut -d '/' -f 4
+    Run  wget https://storage.googleapis.com/vic-product-ova-releases/${latest-ova}
+    Set Environment Variable  OVA_NAME  OVA-5-02-TEST-LATEST
+    Install VIC Product OVA  ${latest-ova}  %{OVA_NAME}
+    
